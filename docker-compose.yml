@@ -1,0 +1,47 @@
+version: '3.3'
+
+services:
+
+    db:
+        image: mysql:5.7     
+        container_name: app-database
+        restart: always     
+        volumes:
+            - volume-db:/var/lib/mysql                 
+        ports:
+            - "3320:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: 123
+            MYSQL_DATABASE: databasename
+            MYSQL_USER: user
+            MYSQL_PASSWORD: 123
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: app-phpmyadmin    
+        depends_on:
+            - db
+        restart: always
+        ports:
+            - "8888:80"
+        environment:
+            - PMA_ARBITRARY=1
+            - PMA_HOST=db
+
+    python:
+        build: .        
+        container_name: app-python      
+        command: python app.py
+        restart: always        
+        working_dir: /app
+        volumes:
+            - ./:/app
+        environment:
+            MYSQL_HOST: db
+            MYSQL_DATABASE: databasename
+            MYSQL_USER: root
+            MYSQL_PASSWORD: 123
+            MYSQL_PORT: 3306
+        
+volumes:    
+    volume-db:       
